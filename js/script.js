@@ -1,51 +1,76 @@
-//declaración de variables y constantes
-const tasaInteresAnual = 0.45; // 45%
-let inversion= 0;
-let meses = 0;
+const tasaInteresAnual = 0.45;
+let historialMontos = [];
 
-//función de entrada de datos
-function solicitarDatos() {
-    inversion = parseFloat(prompt("Ingrese la inversión inicial:"));
-    meses = parseInt(prompt("Ingrese la cantidad de meses:"));
-}
+document.getElementById("formSimulador").addEventListener("submit", function (e) {
+e.preventDefault();
 
-//función de procesamiento de datos
-function calcularInteres(compuesto = true) {
-    if (isNaN(inversion) || isNaN(meses) || inversion <= 0 || meses <= 0) {
-    alert("Datos inválidos. Inténtelo nuevamente.");
+  // capturar datos
+    const inversion = parseFloat(document.getElementById("inversion").value);
+    const meses = parseInt(document.getElementById("meses").value);
+    const tipo = document.getElementById("tipo").value;
+
+if (isNaN(inversion) || isNaN(meses) || inversion <= 0 || meses <= 0) {
+    mostrarEnDOM("Por favor ingrese valores válidos.");
     return;
 }
 
-    let montoFinal = inversion;
-    if (compuesto) {
+  // calcular resultado
+const resultado = calcularInteres(inversion, meses, tipo === "compuesto");
+
+  // mostrar resultado
+mostrarResultado(inversion, meses, resultado, tipo === "compuesto");
+
+  // guardar en el localstorage
+const simulacion = {
+    inversion,
+    meses,
+    tipo,
+    resultado,
+    historial: historialMontos
+};
+
+localStorage.setItem("ultimasimulacion", JSON.stringify(simulacion));
+});
+
+function calcularInteres(inversion, meses, compuesto = true) {
+historialMontos = [];
+let montoFinal = inversion;
+
+if (compuesto) {
     for (let i = 1; i <= meses; i++) {
       montoFinal += montoFinal * (tasaInteresAnual / 12);
+    historialMontos.push(montoFinal);
     }
-    } else {
+} else {
     montoFinal = inversion + (inversion * (tasaInteresAnual / 12) * meses);
-    }
-
-    return montoFinal;
 }
 
-//función de salida de resultados
-function mostrarResultado(montoFinal) {
-    console.log("---- Resultado del Simulador ----");
-    console.log("Inversión inicial: $" + inversion.toFixed(2));
-    console.log("Meses: " + meses);
-    console.log("Monto final estimado: $" + montoFinal.toFixed(2));
-    alert("¡Simulación completada!\nMonto final estimado: $" + montoFinal.toFixed(2));
+return montoFinal;
 }
 
-//Lógica principal
-function simuladorFinanciero() {
-    solicitarDatos();
-    const esCompuesto = confirm("¿Desea calcular interés compuesto?\nAceptar: Compuesto / Cancelar: Simple");
-    const resultado = calcularInteres(esCompuesto);
-    if (resultado) {
-    mostrarResultado(resultado);
-    }
+function mostrarResultado(inversion, meses, resultado, compuesto) {
+let resultadoHTML = `
+    <h2>Resultado:</h2>
+    <p><strong>Inversión inicial:</strong> $${inversion.toFixed(2)}</p>
+    <p><strong>Meses:</strong> ${meses}</p>
+    <p><strong>Tipo de interés:</strong> ${compuesto ? "Compuesto" : "Simple"}</p>
+    <p><strong>Monto final estimado:</strong> $${resultado.toFixed(2)}</p>
+`;
+
+if (compuesto && historialMontos.length > 0) {
+    resultadoHTML += `<h3>Historial por mes</h3><ul>`;
+    historialMontos.forEach((monto, i) => {
+    resultadoHTML += `<li>Mes ${i + 1}: $${monto.toFixed(2)}</li>`;
+    });
+    resultadoHTML += `</ul>`;
 }
 
-//invocación de la función principal
-simuladorFinanciero();
+mostrarEnDOM(resultadoHTML);
+}
+
+function mostrarEnDOM(html) {
+document.getElementById("resultado").innerHTML = html;
+}
+
+
+

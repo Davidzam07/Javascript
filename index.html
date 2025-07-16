@@ -12,5 +12,23 @@
     <title>Simulador Financiero</title>
     <h1>Simulador Financiero</h1>
     <p>Bienvenido a este simulador financiero, permitimos al usuario calcular sus intereses de manera sencilla y rápida.</p>
-</body>
+    <form id="formSimulador">
+    <label for="inversion">Inversión inicial ($):</label>
+    <input type="number" id="inversion" required min="1" />
+
+    <label for="meses">Cantidad de meses:</label>
+    <input type="number" id="meses" required min="1" />
+
+    <label for="tipo">Tipo de interés:</label>
+    <select id="tipo">
+        <option value="compuesto">Compuesto</option>
+        <option value="simple">Simple</option>
+    </select>
+
+    <button type="submit">Simular</button>
+    </form>
+
+    <section id="resultado"></section>
+</main>
+</body> 
 </html>
