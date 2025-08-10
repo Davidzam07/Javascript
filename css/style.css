@@ -1,22 +1,58 @@
 body {
+    background-color: white;
+    color: black;
+    transition: background-color 0.3s ease, color 0.3s ease;
     font-family: Arial, sans-serif;
-    background-color: #1ebbc081;
     padding: 20px;
-    color: #333;
 }
+
+form label,
+form input,
+form select,
+form button,
+h1, p {
+    color: inherit;
+}
+
+body.dark {
+    background-color: #121212; 
+    color: #f5f5f5; 
+}
+
+body.dark input,
+body.dark select {
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #555;
+}
+
+body.dark button {
+    background-color: #333;
+    color: white;
+    border: 1px solid #555;
+}
+
+body.dark button:hover {
+    background-color: #444;
+}
+
+body.dark label,
+body.dark h1,
+body.dark p {
+    color: #f5f5f5;
+}
+
 h1 {
     text-align: center;
-    color: #333;
 }
 
 p {
     text-align: center;
-    color: #555;
 }
+
 main {
     max-width: 500px;
     margin: 0 auto;
-    background: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -34,17 +70,12 @@ input, select, button {
 }
 
 button {
-    background-color: #008cba;
-    color: white;
     border: none;
     cursor: pointer;
     border-radius: 5px;
 }
 
-button:hover {
-    background-color: #005f6a;
-}
-
 #resultado {
     margin-top: 20px;
 }
+
