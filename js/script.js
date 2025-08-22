@@ -8,21 +8,6 @@ try {
   historial = [];
 }
 
-fetch("https://jsonplaceholder.typicode.com/posts?_limit=3")
-  .then(res => {
-    if (!res.ok) throw new Error("Error en la respuesta de la API");
-    return res.json();
-  })
-  .then(data => {
-    console.log("Datos obtenidos de la API:", data);
-  })
-  .catch(error => {
-    console.error("Error al obtener datos de la API:", error);
-  })
-  .finally(() => {
-    console.log("Fetch GET completado.");
-  });
-
 function calcularInteresSimple(inversion, meses, tasaAnual) {
   return inversion + (inversion * tasaAnual * (meses / 12));
 }
@@ -37,10 +22,6 @@ function mostrarHistorial() {
 
   console.log("Historial completo RAW:", historial);
 
-  if (!Array.isArray(historial) || historial.length === 0) {
-    contenedor.innerHTML = "<p>No hay simulaciones guardadas.</p>";
-    return;
-  }
 
   const historialValido = historial.filter(item =>
     item &&
@@ -56,14 +37,13 @@ function mostrarHistorial() {
   }
 
   const htmlHistorial = historialValido
-    .map(
-      (item, i) =>
+    
         `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
           2
         )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
           2
         )}</p>`
-    )
+    
     .join("");
 
   contenedor.innerHTML = htmlHistorial;
@@ -83,23 +63,6 @@ function mostrarResultado(inversion, meses, resultado, tipo) {
     <p><strong>Monto final estimado:</strong> $${resultado.toFixed(2)}</p>
   `;
   document.getElementById("resultado").innerHTML = resultadoHTML;
-}
-
-async function enviarHistorialAPI() {
-  try {
-    const res = await fetch("https://jsonplaceholder.typicode.com/posts", {
-      method: "POST",
-      body: JSON.stringify(historial),
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!res.ok) throw new Error("Error al enviar historial");
-    const data = await res.json();
-    console.log("Historial enviado a la API:", data);
-  } catch (error) {
-    console.error("Error al enviar historial a la API:", error);
-  } finally {
-    console.log("Fetch POST completado.");
-  }
 }
 
 function inicializarApp() {
@@ -177,4 +140,5 @@ function inicializarApp() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", inicializarApp);
+console .log("Historial cargado:", historial);
+inicializarApp();
