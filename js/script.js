@@ -1,12 +1,72 @@
 const tasaInteresAnual = 0.45; 
 let historial;
 
-try {
-  historial = JSON.parse(localStorage.getItem("historial")) || [];
-} catch (error) {
-  console.error("Error al cargar historial desde localStorage:", error);
-  historial = [];
+// Utilidades de formato (funciones y parámetros)
+function formatearDinero(monto, locale = "es-AR", currency = "ARS") {
+  try {
+    return new Intl.NumberFormat(locale, { style: "currency", currency }).format(Number(monto));
+  } catch (_) {
+    return `$${Number(monto).toFixed(2)}`;
+  }
 }
+
+function formatearFecha(isoString) {
+  try {
+    const fecha = new Date(isoString);
+    return fecha.toLocaleString("es-AR", { dateStyle: "medium", timeStyle: "short" });
+  } catch (_) {
+    return isoString || "";
+  }
+}
+
+// Función constructora (Funciones Constructoras y Almacenamiento)
+function Simulacion(inversion, meses, tipo, resultado) {
+  this.inversion = Number(inversion);
+  this.meses = Number(meses);
+  this.tipo = String(tipo);
+  this.resultado = Number(resultado);
+  this.fecha = new Date().toISOString();
+}
+
+// Repositorio de historial (encapsula localStorage)
+const HistorialRepo = {
+  clave: "historial",
+  cargar() {
+    try {
+      const raw = localStorage.getItem(this.clave);
+      const lista = raw ? JSON.parse(raw) : [];
+      return Array.isArray(lista) ? lista : [];
+    } catch (error) {
+      console.error("Error al cargar historial desde localStorage:", error);
+      return [];
+    }
+  },
+  guardar(lista) {
+    try {
+      localStorage.setItem(this.clave, JSON.stringify(lista));
+    } catch (error) {
+      console.error("Error al guardar historial:", error);
+    }
+  },
+  agregar(simulacion) {
+    historial.push(simulacion);
+    this.guardar(historial);
+  },
+  eliminarEn(indice) {
+    historial.splice(indice, 1);
+    this.guardar(historial);
+  },
+  limpiar() {
+    try {
+      localStorage.removeItem(this.clave);
+    } finally {
+      historial = [];
+    }
+  }
+};
+
+// Inicialización del historial desde el repositorio
+historial = HistorialRepo.cargar();
 
 function calcularInteresSimple(inversion, meses, tasaAnual) {
   return inversion + (inversion * tasaAnual * (meses / 12));
@@ -38,10 +98,14 @@ function mostrarHistorial() {
 
   const htmlHistorial = historialValido.map((item, i) =>
     `<div class="registro">
-      <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
+      <p>
+        <strong>Registro ${i + 1}</strong> · ${formatearFecha(item.fecha)}<br />
+        Inversión: ${formatearDinero(item.inversion)} · Meses: ${item.meses} · Tipo: ${item.tipo}<br />
+        Resultado estimado: ${formatearDinero(Number(item.resultado))}
+      </p>
       <div class="acciones">
-        <button type="button" data-action="copy" data-index="${i}">Copiar</button>
-        <button type="button" data-action="delete" data-index="${i}">Eliminar</button>
+        <button type="button" data-action="copy" data-index="${i}">Copiar detalle</button>
+        <button type="button" data-action="delete" data-index="${i}">Quitar</button>
       </div>
     </div>`
   ).join("");
@@ -50,7 +114,7 @@ function mostrarHistorial() {
 
 // guardar historial en localstorage
 function guardarHistorial() {
-  localStorage.setItem("historial", JSON.stringify(historial));
+  HistorialRepo.guardar(historial);
 }
 
 function eliminarSimulacionPorIndice(indice) {
@@ -59,12 +123,11 @@ function eliminarSimulacionPorIndice(indice) {
       throw new Error("Índice inválido para eliminar simulación");
     }
 
-    historial.splice(indice, 1);
-    guardarHistorial();
+    HistorialRepo.eliminarEn(indice);
     mostrarHistorial();
 
     Swal.fire({
-      title: "Elemento eliminado",
+      title: "Registro quitado",
       icon: "success",
       timer: 1000,
       showConfirmButton: false,
@@ -73,7 +136,7 @@ function eliminarSimulacionPorIndice(indice) {
     console.error("Error al eliminar simulación:", error);
     Swal.fire({
       icon: "error",
-      title: "No se pudo eliminar",
+      title: "No se pudo quitar",
       text: error?.message || "Ocurrió un error inesperado",
     });
   }
@@ -85,7 +148,7 @@ function copiarSimulacionPorIndice(indice) {
       throw new Error("Índice inválido para copiar simulación");
     }
     const item = historial[indice];
-    const texto = `Simulación ${indice + 1}: Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado $${Number(item.resultado).toFixed(2)}`;
+    const texto = `Registro ${indice + 1} • ${formatearFecha(item.fecha)}\nInversión: ${formatearDinero(item.inversion)}\nMeses: ${item.meses}\nTipo: ${item.tipo}\nResultado: ${formatearDinero(Number(item.resultado))}`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(texto)
@@ -121,10 +184,10 @@ function copiarFallback(texto) {
 function mostrarResultado(inversion, meses, resultado, tipo) {
   const resultadoHTML = `
     <h2>Resultado:</h2>
-    <p><strong>Inversión inicial:</strong> $${inversion.toFixed(2)}</p>
+    <p><strong>Inversión inicial:</strong> ${formatearDinero(inversion)}</p>
     <p><strong>Meses:</strong> ${meses}</p>
     <p><strong>Tipo de interés:</strong> ${tipo === "compuesto" ? "Compuesto" : "Simple"}</p>
-    <p><strong>Monto final estimado:</strong> $${resultado.toFixed(2)}</p>
+    <p><strong>Monto final estimado:</strong> ${formatearDinero(resultado)}</p>
   `;
   document.getElementById("resultado").innerHTML = resultadoHTML;
 }
@@ -175,18 +238,12 @@ function inicializarApp() {
 
     mostrarResultado(inversion, meses, resultado, tipo);
 
-    const simulacion = {
-      inversion: Number(inversion),
-      meses: Number(meses),
-      tipo: String(tipo),
-      resultado: Number(resultado),
-    };
+    const simulacion = new Simulacion(inversion, meses, tipo, resultado);
 
-    historial.push(simulacion);
-    guardarHistorial();
+    HistorialRepo.agregar(simulacion);
     mostrarHistorial();
     Swal.fire({
-      title: "¡Simulación guardada!",
+      title: "¡Registro guardado!",
       icon: "success",
       timer: 1500,
       showConfirmButton: false,
@@ -195,12 +252,11 @@ function inicializarApp() {
 
   // borrar historial
   document.getElementById("borrarHistorial").addEventListener("click", () => {
-  localStorage.removeItem("historial");
-  historial = [];
-  mostrarHistorial();
-  const resultado = document.getElementById("resultado");
-  if (resultado) resultado.innerHTML = "";
-});
+    HistorialRepo.limpiar();
+    mostrarHistorial();
+    const resultado = document.getElementById("resultado");
+    if (resultado) resultado.innerHTML = "";
+  });
 
   // delegación de eventos para eliminar individualmente y copiar
   const contenedorHistorial = document.getElementById("historial");
@@ -210,11 +266,11 @@ function inicializarApp() {
       const indice = Number(botonEliminar.dataset.index);
       if (!Number.isNaN(indice)) {
         const { isConfirmed } = await Swal.fire({
-          title: "¿Eliminar esta simulación?",
+          title: "¿Quitar este registro?",
           text: "Esta acción no se puede deshacer",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonText: "Sí, eliminar",
+          confirmButtonText: "Sí, quitar",
           cancelButtonText: "Cancelar",
         });
         if (isConfirmed) eliminarSimulacionPorIndice(indice);
