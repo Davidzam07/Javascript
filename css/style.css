@@ -87,7 +87,7 @@ button {
     gap: 10px;
 }
 
-#historial .hist-item {
+#historial .registro {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -98,12 +98,12 @@ button {
     background: #fafafa;
 }
 
-#historial .hist-item p {
+#historial .registro p {
     margin: 0;
     text-align: left;
 }
 
-#historial .hist-item button[data-action="delete"] {
+#historial .registro button[data-action="delete"] {
     background: transparent;
     border: none;
     padding: 6px 8px;
@@ -114,20 +114,20 @@ button {
     gap: 6px;
 }
 
-#historial .hist-item button[data-action="delete"]::before {
+#historial .registro button[data-action="delete"]::before {
     content: "🗑️";
 }
 
-#historial .hist-item button[data-action="delete"]:hover {
+#historial .registro button[data-action="delete"]:hover {
     background: rgba(0,0,0,0.06);
 }
 
-body.dark #historial .hist-item {
+body.dark #historial .registro {
     background: #1a1a1a;
     border-color: #333;
 }
 
-body.dark #historial .hist-item button[data-action="delete"]:hover {
+body.dark #historial .registro button[data-action="delete"]:hover {
     background: rgba(255,255,255,0.08);
 }
 

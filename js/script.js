@@ -37,7 +37,7 @@ function mostrarHistorial() {
   }
 
   const htmlHistorial = historialValido.map((item, i) =>
-    `<div class="hist-item">
+    `<div class="registro">
       <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
       <button type="button" data-action="delete" data-index="${i}">Eliminar</button>
     </div>`
