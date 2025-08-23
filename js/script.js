@@ -20,35 +20,37 @@ function mostrarHistorial() {
   const contenedor = document.getElementById("historial");
   contenedor.innerHTML = "";
 
-  console.log("Historial completo RAW:", historial);
+  const html = historial
+    .map((item, idx) => {
+      if (
+        !item ||
+        typeof item !== "object" ||
+        isNaN(Number(item.resultado)) ||
+        typeof item.inversion !== "number" ||
+        typeof item.meses !== "number"
+      ) {
+        return "";
+      }
+      return `<div class="hist-item" data-index="${idx}">
+        <p><strong>Simulación ${idx + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
+        <button type="button" class="btn-eliminar" aria-label="Eliminar simulación ${idx + 1}">Eliminar</button>
+      </div>`;
+    })
+    .join("");
 
-
-  const historialValido = historial.filter(item =>
-    item &&
-    typeof item === "object" &&
-    !isNaN(Number(item.resultado)) &&
-    typeof item.inversion === "number" &&
-    typeof item.meses === "number"
-  );
-
-  if (historialValido.length === 0) {
-    contenedor.innerHTML = "<p>No hay simulaciones válidas en el historial.</p>";
-    return;
-  }
-
-const htmlHistorial = historialValido.map((item, i) =>
-  `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-    2
-  )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-    2
-  )}</p>`
-).join("");
-contenedor.innerHTML = htmlHistorial;
+  contenedor.innerHTML = html || "<p>No hay simulaciones válidas en el historial.</p>";
 }
 
 // guardar historial en localstorage
 function guardarHistorial() {
   localStorage.setItem("historial", JSON.stringify(historial));
+}
+
+function eliminarPorIndice(indice) {
+  if (!Number.isInteger(indice)) return;
+  historial.splice(indice, 1);
+  guardarHistorial();
+  mostrarHistorial();
 }
 
 function mostrarResultado(inversion, meses, resultado, tipo) {
@@ -126,14 +128,26 @@ function inicializarApp() {
     });
   });
 
-  // borrar historial
+  // Clicks en el historial (eliminar uno)
+  const contenedorHistorial = document.getElementById("historial");
+  contenedorHistorial.addEventListener("click", (ev) => {
+    const boton = ev.target;
+    if (boton && boton.classList && boton.classList.contains("btn-eliminar")) {
+      const padre = boton.closest(".hist-item");
+      if (!padre) return;
+      const indice = Number(padre.getAttribute("data-index"));
+      eliminarPorIndice(indice);
+    }
+  });
+
+  // Borrar todo
   document.getElementById("borrarHistorial").addEventListener("click", () => {
-  localStorage.removeItem("historial");
-  historial = [];
-  mostrarHistorial();
-  const resultado = document.getElementById("resultado");
-  if (resultado) resultado.innerHTML = "";
-});
-  }
+    localStorage.removeItem("historial");
+    historial = [];
+    mostrarHistorial();
+    const resultado = document.getElementById("resultado");
+    if (resultado) resultado.innerHTML = "";
+  });
+}
 
 inicializarApp();
