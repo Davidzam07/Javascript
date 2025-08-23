@@ -79,3 +79,55 @@ button {
     margin-top: 20px;
 }
 
+/* --- Historial UI --- */
+#historial {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#historial .hist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+#historial .hist-item p {
+    margin: 0;
+    text-align: left;
+}
+
+#historial .hist-item button[data-action="delete"] {
+    background: transparent;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#historial .hist-item button[data-action="delete"]::before {
+    content: "🗑️";
+}
+
+#historial .hist-item button[data-action="delete"]:hover {
+    background: rgba(0,0,0,0.06);
+}
+
+body.dark #historial .hist-item {
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+body.dark #historial .hist-item button[data-action="delete"]:hover {
+    background: rgba(255,255,255,0.08);
+}
+
