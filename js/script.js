@@ -20,30 +20,36 @@ function mostrarHistorial() {
   const contenedor = document.getElementById("historial");
   contenedor.innerHTML = "";
 
-  console.log("Historial completo RAW:", historial);
-
-
-  const historialValido = historial.filter(item =>
-    item &&
-    typeof item === "object" &&
-    !isNaN(Number(item.resultado)) &&
-    typeof item.inversion === "number" &&
-    typeof item.meses === "number"
-  );
-
-  if (historialValido.length === 0) {
-    contenedor.innerHTML = "<p>No hay simulaciones válidas en el historial.</p>";
+  if (historial.length === 0) {
+    contenedor.innerHTML = "<p>No hay simulaciones guardadas.</p>";
     return;
   }
 
-const htmlHistorial = historialValido.map((item, i) =>
-  `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-    2
-  )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-    2
-  )}</p>`
-).join("");
-contenedor.innerHTML = htmlHistorial;
+  historial.forEach((item, i) => {
+    const fila = document.createElement("div");
+    fila.classList.add("simulacion");
+
+    const texto = document.createElement("span");
+    texto.innerHTML = `
+      <strong>Simulación ${i + 1}:</strong> 
+      Inversión $${item.inversion.toFixed(2)}, 
+      Meses: ${item.meses}, 
+      Tipo: ${item.tipo}, 
+      Resultado: $${item.resultado.toFixed(2)}
+    `;
+
+    const boton = document.createElement("button");
+    boton.textContent = "🗑️";
+    boton.onclick = () => {
+      historial.splice(i, 1);
+      guardarHistorial();
+      mostrarHistorial();
+    };
+
+    fila.appendChild(texto);
+    fila.appendChild(boton);
+    contenedor.appendChild(fila);
+  });
 }
 
 // guardar historial en localstorage
@@ -134,6 +140,6 @@ function inicializarApp() {
   const resultado = document.getElementById("resultado");
   if (resultado) resultado.innerHTML = "";
 });
-  }
+}
 
 inicializarApp();
