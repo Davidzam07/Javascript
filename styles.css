@@ -1,0 +1,23 @@
+* { box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+.app-header { padding: 24px 16px; background: #111827; border-bottom: 1px solid #1f2937; }
+.app-header h1 { margin: 0 0 4px; font-size: 24px; }
+.tagline { margin: 0; color: #94a3b8; font-size: 12px; }
+.app { max-width: 800px; margin: 0 auto; padding: 16px; }
+.controls { display: grid; gap: 12px; margin-bottom: 16px; }
+#task-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+#task-title { padding: 10px 12px; border: 1px solid #334155; border-radius: 8px; background: #0b1220; color: #e2e8f0; }
+button { padding: 10px 14px; background: #2563eb; border: none; border-radius: 8px; color: white; cursor: pointer; }
+button:hover { background: #1d4ed8; }
+.filters { display: flex; gap: 8px; align-items: center; }
+.filter { background: #334155; }
+.filter.is-active { background: #16a34a; }
+.task-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.task-item { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 10px 12px; background: #0b1220; border: 1px solid #1f2937; border-radius: 10px; }
+.task-item.done { opacity: 0.6; text-decoration: line-through; }
+.task-title { margin: 0; }
+.task-actions { display: flex; gap: 6px; }
+.meta { margin-top: 16px; display: grid; gap: 10px; color: #94a3b8; }
+.quote { display: grid; gap: 8px; }
+blockquote { margin: 0; font-style: italic; }
+@media (max-width: 480px) { #task-form { grid-template-columns: 1fr; } }
