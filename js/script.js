@@ -36,17 +36,14 @@ function mostrarHistorial() {
     return;
   }
 
-  const htmlHistorial = historialValido
-    
-        `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-          2
-        )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-          2
-        )}</p>`
-    
-    .join("");
-
-  contenedor.innerHTML = htmlHistorial;
+const htmlHistorial = historialValido.map((item, i) =>
+  `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
+    2
+  )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
+    2
+  )}</p>`
+).join("");
+contenedor.innerHTML = htmlHistorial;
 }
 
 // guardar historial en localstorage
@@ -121,9 +118,6 @@ function inicializarApp() {
     historial.push(simulacion);
     guardarHistorial();
     mostrarHistorial();
-
-    await enviarHistorialAPI();
-
     Swal.fire({
       title: "¡Simulación guardada!",
       icon: "success",
@@ -132,13 +126,10 @@ function inicializarApp() {
     });
   });
 
-  // Borrar historial
+  // borrar historial
   document.getElementById("borrarHistorial").addEventListener("click", () => {
     localStorage.removeItem("historial");
     historial = [];
     mostrarHistorial();
-  });
-}
-
-console .log("Historial cargado:", historial);
+  })}
 inicializarApp();
