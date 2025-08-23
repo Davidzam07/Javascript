@@ -1,39 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simulador Financiero</title>
-<script defer src="./js/script.js"></script>
-<script defer src="./js/calculador.js"></script>
-<link rel="stylesheet" href="./css/style.css" />
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Lista de Tareas</title>
+	<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-    <h1>Simulador Financiero</h1>
-    <p>Bienvenido a este simulador financiero, permitimos al usuario calcular sus intereses de manera sencilla y rápida.</p>
+	<header class="app-header">
+		<h1>Lista de Tareas</h1>
+		<p class="tagline">Funciones, arrays/objetos, constructores, HOFs, DOM/eventos, async/errores</p>
+	</header>
 
-    <button id="toggleTheme">🌙 Modo Oscuro</button>
+	<main class="app">
+		<section class="controls">
+			<form id="task-form">
+				<input id="task-title" name="title" type="text" placeholder="Nueva tarea..." autocomplete="off" required>
+				<button type="submit">Añadir</button>
+			</form>
 
-    <form id="formSimulador">
-        <label for="inversion">Inversión inicial ($):</label>
-        <input type="number" id="inversion" required min="1" />
+			<div class="filters">
+				<button data-filter="all" class="filter is-active">Todas</button>
+				<button data-filter="open" class="filter">Pendientes</button>
+				<button data-filter="done" class="filter">Completadas</button>
+				<select id="sort-select">
+					<option value="created_desc">Recientes primero</option>
+					<option value="created_asc">Antiguas primero</option>
+					<option value="alpha_asc">A-Z</option>
+					<option value="alpha_desc">Z-A</option>
+				</select>
+			</div>
+		</section>
 
-        <label for="meses">Cantidad de meses:</label>
-        <input type="number" id="meses" required min="1" />
+		<section>
+			<ul id="task-list" class="task-list"></ul>
+		</section>
 
-        <label for="tipo">Tipo de interés:</label>
-        <select id="tipo">
-            <option value="compuesto">Compuesto</option>
-            <option value="simple">Simple</option>
-        </select>
+		<section class="meta">
+			<p id="stats"></p>
+			<div class="quote">
+				<button id="load-quote">Cargar frase motivacional</button>
+				<blockquote id="quote-text"></blockquote>
+				<cite id="quote-author"></cite>
+			</div>
+		</section>
+	</main>
 
-        <button type="button" id="borrarHistorial">Borrar historial</button>
-        <button type="submit">Simular</button>
-    </form>
-
-    <section id="resultado"></section>
-    <section id="historial"></section>
-    
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="./app.js"></script>
 </body>
 </html>
