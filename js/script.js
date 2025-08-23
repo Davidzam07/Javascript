@@ -127,9 +127,51 @@ function inicializarApp() {
   });
 
   // borrar historial
-  document.getElementById("borrarHistorial").addEventListener("click", () => {
-    localStorage.removeItem("historial");
-    historial = [];
-    mostrarHistorial();
-  })}
+  document.getElementById("borrarHistorial").addEventListener("click", async () => {
+    let isConfirmed = true;
+    if (typeof Swal !== "undefined") {
+      const result = await Swal.fire({
+        title: "¿Borrar historial?",
+        text: "Esta acción no se puede deshacer.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, borrar",
+        cancelButtonText: "Cancelar"
+      });
+      isConfirmed = result.isConfirmed;
+    } else {
+      isConfirmed = window.confirm("¿Borrar historial?");
+    }
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      localStorage.removeItem("historial");
+      historial = [];
+      mostrarHistorial();
+      const resultadoEl = document.getElementById("resultado");
+      if (resultadoEl) {
+        resultadoEl.innerHTML = "";
+      }
+      if (typeof Swal !== "undefined") {
+        await Swal.fire({
+          title: "Historial borrado",
+          icon: "success",
+          timer: 1200,
+          showConfirmButton: false
+        });
+      }
+    } catch (error) {
+      console.error("Error al borrar historial:", error);
+      if (typeof Swal !== "undefined") {
+        Swal.fire({
+          icon: "error",
+          title: "No se pudo borrar el historial"
+        });
+      }
+    }
+  });
+}
 inicializarApp();
