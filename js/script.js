@@ -22,7 +22,6 @@ function mostrarHistorial() {
 
   console.log("Historial completo RAW:", historial);
 
-
   const historialValido = historial.filter(item =>
     item &&
     typeof item === "object" &&
@@ -36,14 +35,13 @@ function mostrarHistorial() {
     return;
   }
 
-const htmlHistorial = historialValido.map((item, i) =>
-  `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-    2
-  )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-    2
-  )}</p>`
-).join("");
-contenedor.innerHTML = htmlHistorial;
+  const htmlHistorial = historialValido.map((item, i) =>
+    `<div class="hist-item">
+      <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
+      <button class="eliminar-item" data-index="${i}">Eliminar</button>
+    </div>`
+  ).join("");
+  contenedor.innerHTML = htmlHistorial;
 }
 
 // guardar historial en localstorage
@@ -170,6 +168,20 @@ function inicializarApp() {
           icon: "error",
           title: "No se pudo borrar el historial"
         });
+      }
+    }
+  });
+
+  // eliminar item individual con delegación
+  const contenedorHistorial = document.getElementById("historial");
+  contenedorHistorial.addEventListener("click", (event) => {
+    const target = event.target;
+    if (target && target.classList.contains("eliminar-item")) {
+      const index = Number(target.getAttribute("data-index"));
+      if (!isNaN(index) && index >= 0 && index < historial.length) {
+        historial.splice(index, 1);
+        guardarHistorial();
+        mostrarHistorial();
       }
     }
   });
