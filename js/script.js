@@ -36,19 +36,44 @@ function mostrarHistorial() {
     return;
   }
 
-const htmlHistorial = historialValido.map((item, i) =>
-  `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-    2
-  )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-    2
-  )}</p>`
-).join("");
-contenedor.innerHTML = htmlHistorial;
+  const htmlHistorial = historialValido.map((item, i) =>
+    `<div class="hist-item">
+      <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
+      <button type="button" data-action="delete" data-index="${i}">Eliminar</button>
+    </div>`
+  ).join("");
+  contenedor.innerHTML = htmlHistorial;
 }
 
 // guardar historial en localstorage
 function guardarHistorial() {
   localStorage.setItem("historial", JSON.stringify(historial));
+}
+
+function eliminarSimulacionPorIndice(indice) {
+  try {
+    if (typeof indice !== "number" || Number.isNaN(indice) || indice < 0 || indice >= historial.length) {
+      throw new Error("Índice inválido para eliminar simulación");
+    }
+
+    historial.splice(indice, 1);
+    guardarHistorial();
+    mostrarHistorial();
+
+    Swal.fire({
+      title: "Elemento eliminado",
+      icon: "success",
+      timer: 1000,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("Error al eliminar simulación:", error);
+    Swal.fire({
+      icon: "error",
+      title: "No se pudo eliminar",
+      text: error?.message || "Ocurrió un error inesperado",
+    });
+  }
 }
 
 function mostrarResultado(inversion, meses, resultado, tipo) {
@@ -134,6 +159,29 @@ function inicializarApp() {
   const resultado = document.getElementById("resultado");
   if (resultado) resultado.innerHTML = "";
 });
-  }
+
+  // delegación de eventos para eliminar individualmente
+  const contenedorHistorial = document.getElementById("historial");
+  contenedorHistorial.addEventListener("click", async (event) => {
+    const boton = event.target.closest("button[data-action='delete']");
+    if (!boton) return;
+
+    const indice = Number(boton.dataset.index);
+    if (Number.isNaN(indice)) return;
+
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Eliminar esta simulación?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!isConfirmed) return;
+
+    eliminarSimulacionPorIndice(indice);
+  });
+}
 
 inicializarApp();
