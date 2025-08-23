@@ -37,13 +37,13 @@ function mostrarHistorial() {
   }
 
   const htmlHistorial = historialValido
-    
-        `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-          2
-        )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-          2
-        )}</p>`
-    
+    .map((item, i) => {
+      const inversion = Number(item.inversion);
+      const meses = Number(item.meses);
+      const tipo = String(item.tipo);
+      const resultado = Number(item.resultado);
+      return `<p><strong>Simulación ${i + 1}:</strong> Inversión $${inversion.toFixed(2)}, Meses: ${meses}, Tipo: ${tipo}, Resultado: $${resultado.toFixed(2)}</p>`;
+    })
     .join("");
 
   contenedor.innerHTML = htmlHistorial;
@@ -52,6 +52,14 @@ function mostrarHistorial() {
 // guardar historial en localstorage
 function guardarHistorial() {
   localStorage.setItem("historial", JSON.stringify(historial));
+}
+
+async function enviarHistorialAPI() {
+  try {
+    return;
+  } catch (error) {
+    console.warn("enviarHistorialAPI falló:", error);
+  }
 }
 
 function mostrarResultado(inversion, meses, resultado, tipo) {
