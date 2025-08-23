@@ -39,7 +39,10 @@ function mostrarHistorial() {
   const htmlHistorial = historialValido.map((item, i) =>
     `<div class="registro">
       <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
-      <button type="button" data-action="delete" data-index="${i}">Eliminar</button>
+      <div class="acciones">
+        <button type="button" data-action="copy" data-index="${i}">Copiar</button>
+        <button type="button" data-action="delete" data-index="${i}">Eliminar</button>
+      </div>
     </div>`
   ).join("");
   contenedor.innerHTML = htmlHistorial;
@@ -74,6 +77,45 @@ function eliminarSimulacionPorIndice(indice) {
       text: error?.message || "Ocurrió un error inesperado",
     });
   }
+}
+
+function copiarSimulacionPorIndice(indice) {
+  try {
+    if (typeof indice !== "number" || Number.isNaN(indice) || indice < 0 || indice >= historial.length) {
+      throw new Error("Índice inválido para copiar simulación");
+    }
+    const item = historial[indice];
+    const texto = `Simulación ${indice + 1}: Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado $${Number(item.resultado).toFixed(2)}`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto)
+        .then(() => {
+          Swal.fire({ title: "Copiado", text: "Detalle copiado al portapapeles", icon: "success", timer: 1000, showConfirmButton: false });
+        })
+        .catch((err) => {
+          console.error("Error usando Clipboard API:", err);
+          copiarFallback(texto);
+        });
+    } else {
+      copiarFallback(texto);
+    }
+  } catch (error) {
+    console.error("Error al copiar simulación:", error);
+    Swal.fire({ icon: "error", title: "No se pudo copiar", text: error?.message || "Ocurrió un error" });
+  }
+}
+
+function copiarFallback(texto) {
+  const area = document.createElement("textarea");
+  area.value = texto;
+  area.setAttribute("readonly", "");
+  area.style.position = "absolute";
+  area.style.left = "-9999px";
+  document.body.appendChild(area);
+  area.select();
+  try { document.execCommand("copy"); } catch (_) {}
+  document.body.removeChild(area);
+  Swal.fire({ title: "Copiado", text: "Detalle copiado al portapapeles", icon: "success", timer: 1000, showConfirmButton: false });
 }
 
 function mostrarResultado(inversion, meses, resultado, tipo) {
@@ -160,27 +202,32 @@ function inicializarApp() {
   if (resultado) resultado.innerHTML = "";
 });
 
-  // delegación de eventos para eliminar individualmente
+  // delegación de eventos para eliminar individualmente y copiar
   const contenedorHistorial = document.getElementById("historial");
   contenedorHistorial.addEventListener("click", async (event) => {
-    const boton = event.target.closest("button[data-action='delete']");
-    if (!boton) return;
+    const botonEliminar = event.target.closest("button[data-action='delete']");
+    if (botonEliminar) {
+      const indice = Number(botonEliminar.dataset.index);
+      if (!Number.isNaN(indice)) {
+        const { isConfirmed } = await Swal.fire({
+          title: "¿Eliminar esta simulación?",
+          text: "Esta acción no se puede deshacer",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Sí, eliminar",
+          cancelButtonText: "Cancelar",
+        });
+        if (isConfirmed) eliminarSimulacionPorIndice(indice);
+      }
+      return;
+    }
 
-    const indice = Number(boton.dataset.index);
-    if (Number.isNaN(indice)) return;
-
-    const { isConfirmed } = await Swal.fire({
-      title: "¿Eliminar esta simulación?",
-      text: "Esta acción no se puede deshacer",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (!isConfirmed) return;
-
-    eliminarSimulacionPorIndice(indice);
+    const botonCopiar = event.target.closest("button[data-action='copy']");
+    if (botonCopiar) {
+      const indice = Number(botonCopiar.dataset.index);
+      if (!Number.isNaN(indice)) copiarSimulacionPorIndice(indice);
+      return;
+    }
   });
 }
 

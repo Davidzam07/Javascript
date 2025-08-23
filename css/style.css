@@ -103,6 +103,18 @@ button {
     text-align: left;
 }
 
+#historial .registro .acciones {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#historial .registro button[data-action="copy"]::before {
+    content: "📋";
+    margin-right: 4px;
+}
+
+#historial .registro button[data-action="copy"],
 #historial .registro button[data-action="delete"] {
     background: transparent;
     border: none;
@@ -118,6 +130,7 @@ button {
     content: "🗑️";
 }
 
+#historial .registro button[data-action="copy"]:hover,
 #historial .registro button[data-action="delete"]:hover {
     background: rgba(0,0,0,0.06);
 }
@@ -127,6 +140,7 @@ body.dark #historial .registro {
     border-color: #333;
 }
 
+body.dark #historial .registro button[data-action="copy"]:hover,
 body.dark #historial .registro button[data-action="delete"]:hover {
     background: rgba(255,255,255,0.08);
 }
