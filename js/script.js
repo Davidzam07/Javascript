@@ -141,12 +141,19 @@ function inicializarApp() {
   });
 
   // Borrar historial
-  document.getElementById("borrarHistorial").addEventListener("click", () => {
-    localStorage.removeItem("historial");
-    historial = [];
-    mostrarHistorial();
-  });
+  const borrarBtn = document.getElementById("borrarHistorial");
+  if (borrarBtn) {
+    console.log("Adjuntando listener a #borrarHistorial");
+    borrarBtn.addEventListener("click", () => {
+      console.log("Click en #borrarHistorial");
+      localStorage.removeItem("historial");
+      historial = [];
+      mostrarHistorial();
+    });
+  } else {
+    console.warn("No se encontró el botón #borrarHistorial en el DOM");
+  }
 }
 
-console .log("Historial cargado:", historial);
+console.log("Historial cargado:", historial);
 inicializarApp();
