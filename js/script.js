@@ -149,6 +149,16 @@ function inicializarApp() {
       localStorage.removeItem("historial");
       historial = [];
       mostrarHistorial();
+      const resultadoEl = document.getElementById("resultado");
+      if (resultadoEl) resultadoEl.innerHTML = "";
+      if (typeof Swal !== "undefined") {
+        Swal.fire({
+          title: "Historial borrado",
+          icon: "success",
+          timer: 1200,
+          showConfirmButton: false
+        });
+      }
     });
   } else {
     console.warn("No se encontró el botón #borrarHistorial en el DOM");
