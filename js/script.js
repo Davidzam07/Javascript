@@ -37,11 +37,10 @@ function mostrarHistorial() {
   }
 
 const htmlHistorial = historialValido.map((item, i) =>
-  `<p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(
-    2
-  )}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(
-    2
-  )}</p>`
+  `<div class="hist-item" data-index="${i}">
+    <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
+    <button type="button" class="btn-eliminar" aria-label="Eliminar simulación ${i + 1}">Eliminar</button>
+  </div>`
 ).join("");
 contenedor.innerHTML = htmlHistorial;
 }
@@ -49,6 +48,25 @@ contenedor.innerHTML = htmlHistorial;
 // guardar historial en localstorage
 function guardarHistorial() {
   localStorage.setItem("historial", JSON.stringify(historial));
+}
+
+async function eliminarHistorialPorIndice(indiceEnValido) {
+  // Mapear el índice mostrado (sobre historialValido) al índice real en 'historial'
+  // Dado que historialValido filtra por validez y preserva orden, podemos reconstruir el mapeo en el momento de borrar.
+  const indicesValidos = historial
+    .map((item, idx) => ({ item, idx }))
+    .filter(({ item }) => item && typeof item === "object" && !isNaN(Number(item.resultado)) && typeof item.inversion === "number" && typeof item.meses === "number")
+    .map(({ idx }) => idx);
+
+  const indiceReal = indicesValidos[indiceEnValido];
+  if (typeof indiceReal !== "number") return;
+
+  // Simular operación asíncrona (p.ej. request al servidor)
+  await new Promise(resolve => setTimeout(resolve, 150));
+
+  historial.splice(indiceReal, 1);
+  guardarHistorial();
+  mostrarHistorial();
 }
 
 function mostrarResultado(inversion, meses, resultado, tipo) {
@@ -126,14 +144,28 @@ function inicializarApp() {
     });
   });
 
-  // borrar historial
+  // Delegación de eventos para eliminar individualmente
+  const contenedorHistorial = document.getElementById("historial");
+  contenedorHistorial.addEventListener("click", (ev) => {
+    const boton = ev.target;
+    if (boton && boton.classList && boton.classList.contains("btn-eliminar")) {
+      const padre = boton.closest(".hist-item");
+      if (!padre) return;
+      const indice = Number(padre.getAttribute("data-index"));
+      if (Number.isInteger(indice)) {
+        eliminarHistorialPorIndice(indice);
+      }
+    }
+  });
+
+  // borrar historial completo
   document.getElementById("borrarHistorial").addEventListener("click", () => {
-  localStorage.removeItem("historial");
-  historial = [];
-  mostrarHistorial();
-  const resultado = document.getElementById("resultado");
-  if (resultado) resultado.innerHTML = "";
-});
-  }
+    localStorage.removeItem("historial");
+    historial = [];
+    mostrarHistorial();
+    const resultado = document.getElementById("resultado");
+    if (resultado) resultado.innerHTML = "";
+  });
+}
 
 inicializarApp();
