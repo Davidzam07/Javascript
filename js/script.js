@@ -128,8 +128,12 @@ function inicializarApp() {
 
   // borrar historial
   document.getElementById("borrarHistorial").addEventListener("click", () => {
-    localStorage.removeItem("historial");
-    historial = [];
-    mostrarHistorial();
-  })}
+  localStorage.removeItem("historial");
+  historial = [];
+  mostrarHistorial();
+  const resultado = document.getElementById("resultado");
+  if (resultado) resultado.innerHTML = "";
+});
+  }
+
 inicializarApp();
