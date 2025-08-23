@@ -20,29 +20,25 @@ function mostrarHistorial() {
   const contenedor = document.getElementById("historial");
   contenedor.innerHTML = "";
 
-  console.log("Historial completo RAW:", historial);
+  const html = historial
+    .map((item, idx) => {
+      if (
+        !item ||
+        typeof item !== "object" ||
+        isNaN(Number(item.resultado)) ||
+        typeof item.inversion !== "number" ||
+        typeof item.meses !== "number"
+      ) {
+        return "";
+      }
+      return `<div class="hist-item" data-index="${idx}">
+        <p><strong>Simulación ${idx + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
+        <button type="button" class="btn-eliminar" aria-label="Eliminar simulación ${idx + 1}">Eliminar</button>
+      </div>`;
+    })
+    .join("");
 
-
-  const historialValido = historial.filter(item =>
-    item &&
-    typeof item === "object" &&
-    !isNaN(Number(item.resultado)) &&
-    typeof item.inversion === "number" &&
-    typeof item.meses === "number"
-  );
-
-  if (historialValido.length === 0) {
-    contenedor.innerHTML = "<p>No hay simulaciones válidas en el historial.</p>";
-    return;
-  }
-
-const htmlHistorial = historialValido.map((item, i) =>
-  `<div class="hist-item" data-index="${i}">
-    <p><strong>Simulación ${i + 1}:</strong> Inversión $${item.inversion.toFixed(2)}, Meses: ${item.meses}, Tipo: ${item.tipo}, Resultado: $${Number(item.resultado).toFixed(2)}</p>
-    <button type="button" class="btn-eliminar" aria-label="Eliminar simulación ${i + 1}">Eliminar</button>
-  </div>`
-).join("");
-contenedor.innerHTML = htmlHistorial;
+  contenedor.innerHTML = html || "<p>No hay simulaciones válidas en el historial.</p>";
 }
 
 // guardar historial en localstorage
@@ -50,21 +46,9 @@ function guardarHistorial() {
   localStorage.setItem("historial", JSON.stringify(historial));
 }
 
-async function eliminarHistorialPorIndice(indiceEnValido) {
-  // Mapear el índice mostrado (sobre historialValido) al índice real en 'historial'
-  // Dado que historialValido filtra por validez y preserva orden, podemos reconstruir el mapeo en el momento de borrar.
-  const indicesValidos = historial
-    .map((item, idx) => ({ item, idx }))
-    .filter(({ item }) => item && typeof item === "object" && !isNaN(Number(item.resultado)) && typeof item.inversion === "number" && typeof item.meses === "number")
-    .map(({ idx }) => idx);
-
-  const indiceReal = indicesValidos[indiceEnValido];
-  if (typeof indiceReal !== "number") return;
-
-  // Simular operación asíncrona (p.ej. request al servidor)
-  await new Promise(resolve => setTimeout(resolve, 150));
-
-  historial.splice(indiceReal, 1);
+function eliminarPorIndice(indice) {
+  if (!Number.isInteger(indice)) return;
+  historial.splice(indice, 1);
   guardarHistorial();
   mostrarHistorial();
 }
@@ -144,7 +128,7 @@ function inicializarApp() {
     });
   });
 
-  // Delegación de eventos para eliminar individualmente
+  // Clicks en el historial (eliminar uno)
   const contenedorHistorial = document.getElementById("historial");
   contenedorHistorial.addEventListener("click", (ev) => {
     const boton = ev.target;
@@ -152,13 +136,11 @@ function inicializarApp() {
       const padre = boton.closest(".hist-item");
       if (!padre) return;
       const indice = Number(padre.getAttribute("data-index"));
-      if (Number.isInteger(indice)) {
-        eliminarHistorialPorIndice(indice);
-      }
+      eliminarPorIndice(indice);
     }
   });
 
-  // borrar historial completo
+  // Borrar todo
   document.getElementById("borrarHistorial").addEventListener("click", () => {
     localStorage.removeItem("historial");
     historial = [];
